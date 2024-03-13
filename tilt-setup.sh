@@ -6,7 +6,7 @@ prep_environment () {
     exit 1
   fi
   mkdir -p ~/.local/bin
-  mkdir -p ~/.config/containers
+  mkdir -p ~/.config/containers/registries.conf.d
 }
 
 kubectl_out_of_date () {
@@ -77,6 +77,42 @@ install_tilt () {
   install <(curl -Ls https://github.com/tilt-dev/tilt/releases/download/v${latest_version}/tilt.${latest_version}.linux.x86_64.tar.gz | tar -xOzf - tilt) ~/.local/bin/tilt
 }
 
+insecure_registry () {
+  if [ ! -f ~/.config/containers/registries.conf.d/kind.conf ]; then
+    tee ~/.config/containers/registries.conf.d/kind.conf <<EOF
+[[registry]]
+location = "localhost:${reg_port}"
+insecure = true
+EOF
+  fi
+}
+
+create_registry () {
+  case $(podman inspect -f '{{.State.Running}}' "${reg_name}" 2>/dev/null || true) in
+  false)
+    echo "Starting previously configured registry..."
+    podman start ${reg_name}
+    ;;
+  true)
+    echo "Registry is already running"
+    ;;
+  *)
+    echo "Creating registry..."
+    podman run \
+      -d --restart=always -p "127.0.0.1:${reg_port}:5000" --network bridge --name "${reg_name}" \
+      registry:2
+    ;;
+  esac
+}
+
+start_cluster () {
+  echo "Todo"
+}
+
+add_registry_to_kind () {
+  echo "Todo"
+}
+
 prep_environment
 
 echo "Checking versions..."
@@ -84,3 +120,13 @@ kubectl_out_of_date || install_kubectl
 kind_out_of_date || install_kind
 helm_out_of_date || install_helm
 tilt_out_of_date || install_tilt
+
+echo
+echo "Configuring kind..."
+# This is based on https://kind.sigs.k8s.io/docs/user/local-registry/
+reg_name='kind-registry'
+reg_port='5001'
+insecure_registry
+create_registry
+start_cluster
+add_registry_to_kind
