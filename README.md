@@ -21,8 +21,8 @@ tilt-setup.sh
 It will:
 
 1. Check you have the latest versions of kubectl, kind, helm and tilt and install them into your `~/.local/bin` if not.
-2. [TODO] Create a Kind control plane container and registry if they don't already exist
-3. [TODO] Start these pods if they have been stopped
+2. Create a Kind control plane container and registry if they don't already exist
+3. Start these pods if they have been stopped
 
 # Future ideas
 

@@ -23,9 +23,6 @@ RUN bundle install
 # Copy application code
 COPY . .
 
-# Precompile the assets
-RUN bundle exec rails assets:precompile
-
 # Entrypoint prepares the database.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 

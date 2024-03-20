@@ -20,11 +20,14 @@ helm_resource(
 )
 
 # The Rails app itself is built and served by app.yaml
-podman_build('rails-example', '.', live_update=[
-  sync('.', '/rails'),
-  run('bundle', trigger=['./Gemfile', './Gemfile.lock']),
-  run('bundle exec rails assets:precompile', trigger=['./app/assets'])
-])
+podman_build('rails-example', '.', 
+  extra_flags=['--file', 'Containerfile.dev'],
+  live_update=[
+    sync('.', '/rails'),
+    run('bundle', trigger=['./Gemfile', './Gemfile.lock']),
+    run('bundle exec rails assets:precompile', trigger=['./app/assets'])
+  ]
+)
 k8s_yaml('k8s.yaml')
 k8s_resource('rails-example', 
   labels=['app'],
