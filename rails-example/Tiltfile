@@ -13,8 +13,11 @@ helm_resource(
   name='postgresql',
   chart='oci://registry-1.docker.io/bitnamicharts/postgresql',
   flags=[
+      # TODO: 15.x appears to have problems with ephemeral-storage limits that
+      # I haven't been able to debug yet
+      '--version=^14.0',
       '--set=image.tag=16.2.0-debian-12-r8',
-      '--set=global.postgresql.auth.existingSecret=tiltfile',
+      '--set=global.postgresql.auth.existingSecret=tiltfile'
   ],
   labels=['database']
 )
@@ -25,7 +28,7 @@ podman_build('rails-example', '.',
   live_update=[
     sync('.', '/rails'),
     run('bundle', trigger=['./Gemfile', './Gemfile.lock']),
-    run('bundle exec rails assets:precompile', trigger=['./app/assets'])
+    run('yarn', trigger=['./package.json', './yarn.lock']),
   ]
 )
 k8s_yaml('k8s.yaml')

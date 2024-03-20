@@ -125,6 +125,14 @@ containerdConfigPatches:
   [plugins."io.containerd.grpc.v1.cri".registry]
     config_path = "/etc/containerd/certs.d"
 EOF
+    # Ensure Kind nodes can reach registry
+    REGISTRY_DIR="/etc/containerd/certs.d/localhost:${reg_port}"
+    for node in $(kind get nodes); do
+      podman exec "${node}" mkdir -p "${REGISTRY_DIR}"
+      cat <<EOF | podman exec -i "${node}" cp /dev/stdin "${REGISTRY_DIR}/hosts.toml"
+[host."http://${reg_name}:5000"]
+EOF
+    done
     ;;
   esac
   # Now check it's the current kube context on the system
