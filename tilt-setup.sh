@@ -57,7 +57,7 @@ helm_out_of_date () {
 
 install_helm () {
   echo "Installing helm ${latest_version}..."
-  install <(curl https://get.helm.sh/helm-${latest_version}-linux-amd64.tar.gz | tar -xOzf - linux-amd64/helm) ~/.local/bin/helm
+  install <(curl -s https://get.helm.sh/helm-${latest_version}-linux-amd64.tar.gz | tar -xOzf - linux-amd64/helm) ~/.local/bin/helm
 }
 
 tilt_out_of_date () {
@@ -106,11 +106,53 @@ create_registry () {
 }
 
 start_cluster () {
-  echo "Todo"
+  case $(podman inspect -f '{{.State.Running}}' kind-control-plane 2>/dev/null || true) in
+  false)
+    echo "Starting previously configured cluster..."
+    podman start kind-control-plane
+    ;;
+  true)
+    echo "Cluster is already running"
+    ;;
+  *)
+    echo "Creating Kubernetes cluster..."
+    # Add this patch config until https://github.com/kubernetes-sigs/kind/issues/2875 is resolved
+    cat <<EOF | kind create cluster --config=-
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+containerdConfigPatches:
+- |-
+  [plugins."io.containerd.grpc.v1.cri".registry]
+    config_path = "/etc/containerd/certs.d"
+EOF
+    ;;
+  esac
+  # Now check it's the current kube context on the system
+  kube_context=$(kubectl config current-context)
+  if [ "$kube_context" != 'kind-kind' ]; then
+    echo "Current context is not right (it's ${kube_context})"
+    exit 1
+  fi
 }
 
 add_registry_to_kind () {
-  echo "Todo"
+  if [ "$(podman inspect -f='{{json .NetworkSettings.Networks.kind}}' "${reg_name}")" = 'null' ]; then
+    echo "Attaching registry to kind network..."
+    podman network connect "kind" "${reg_name}"
+  fi
+  # https://github.com/kubernetes/enhancements/tree/master/keps/sig-cluster-lifecycle/generic/1755-communicating-a-local-registry
+  echo "Adding or updating local-registry-hosting configmap..."
+  cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-registry-hosting
+  namespace: kube-public
+data:
+  localRegistryHosting.v1: |
+    host: "localhost:${reg_port}"
+    help: "https://kind.sigs.k8s.io/docs/user/local-registry/"
+EOF
 }
 
 prep_environment
