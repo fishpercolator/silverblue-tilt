@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails-example
+  labels:
+    app: rails-example
+spec:
+  selector:
+    matchLabels:
+      app: rails-example
+  template:
+    metadata:
+      labels:
+        app: rails-example
+    spec:
+      containers:
+        - name: rails-example
+          image: rails-example
+          ports:
+            - containerPort: 3000

@@ -7,7 +7,7 @@ This is a bash script for installing and managing all the dependencies of Tilt +
 You can run this script from anywhere. To install it into your `~/.local/bin`:
 
 ```
-install <$(curl -s https://raw.githubusercontent.com/fishpercolator/silverblue-tilt/main/tilt-setup.sh) ~/.local/bin/tilt-setup.sh
+install <(curl -s https://raw.githubusercontent.com/fishpercolator/silverblue-tilt/main/tilt-setup.sh) ~/.local/bin/tilt-setup.sh
 ```
 
 # Running
