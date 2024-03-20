@@ -1,0 +1,55 @@
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
+load('ext://podman', 'podman_build')
+load('ext://secret', 'secret_from_dict')
+load('ext://uibutton', 'cmd_button')
+
+# Set up secrets with defaults for development
+k8s_yaml(secret_from_dict('tiltfile', inputs = {
+  'postgres-password' : os.getenv('POSTGRESQL_PASSWORD', 's3sam3')
+}))
+
+# Use Helm to spin up postgres
+helm_resource(
+  name='postgresql',
+  chart='oci://registry-1.docker.io/bitnamicharts/postgresql',
+  flags=[
+      # TODO: 15.x appears to have problems with ephemeral-storage limits that
+      # I haven't been able to debug yet
+      '--version=^14.0',
+      '--set=image.tag=16.2.0-debian-12-r8',
+      '--set=global.postgresql.auth.existingSecret=tiltfile'
+  ],
+  labels=['database']
+)
+
+# The Rails app itself is built and served by app.yaml
+podman_build('rails-example', '.', 
+  extra_flags=['--file', 'Containerfile.dev'],
+  live_update=[
+    fall_back_on(['./config']),
+    sync('.', '/rails'),
+    run('bundle', trigger=['./Gemfile', './Gemfile.lock']),
+    run('yarn', trigger=['./package.json', './yarn.lock']),
+    run('yarn build', trigger=['./app/javascript']),
+    run('yarn build:css', trigger=['./app/assets/stylesheets']),
+  ]
+)
+k8s_yaml('k8s.yaml')
+k8s_resource('rails-example', 
+  labels=['app'],
+  resource_deps=['postgresql'],
+  port_forwards='3000:3000'
+)
+cmd_button('rails-example:db-migrate',
+  argv=['./bin/tilt-run', 'rails', 'db:migrate'],
+  resource='rails-example',
+  icon_name='engineering',
+  text='Run migrations',
+)
+cmd_button('rails-example:db-reset',
+  argv=['./bin/tilt-run', 'rails', 'db:seed:replant'],
+  resource='rails-example',
+  icon_name='restart_alt',
+  text='Reset database',
+  requires_confirmation=True,
+)
