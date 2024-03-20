@@ -2,7 +2,7 @@
 
 This is a bash script for installing and managing all the dependencies of Tilt + Kind on Podman-based desktops such as Silverblue.
 
-# To install
+## To install
 
 You can run this script from anywhere. To install it into your `~/.local/bin`:
 
@@ -11,7 +11,7 @@ mkdir -p ~/.local/bin
 install <(curl -s https://raw.githubusercontent.com/fishpercolator/silverblue-tilt/main/tilt-setup.sh) ~/.local/bin/tilt-setup.sh
 ```
 
-# Running
+## Running
 
 At the moment, the script takes no options - just run it:
 
@@ -25,11 +25,11 @@ It will:
 2. Create a Kind control plane container and registry if they don't already exist
 3. Start these pods if they have been stopped
 
-# Rails example application
+## Rails example application
 
 This repo contains a Rails example application that you can use to verify your Tilt setup, and also potentially use as a base for building your own Rails applications using this setup.
 
-## To use
+### To use
 
 ```
 git clone https://github.com/fishpercolator/silverblue-tilt.git
@@ -37,7 +37,7 @@ cd silverblue-tilt/rails-example
 tilt up
 ```
 
-## How it was configured
+### How it was configured
 
 The Rails application was initialized using:
 
@@ -57,7 +57,7 @@ The environment was then customized for Tilt in [this commit](https://github.com
 6. Added a `tilt-run` script that allows you to run commands on the running application using `kubectl exec`.
 7. The Tiltfile also contains two buttons that run common `tilt-run` commands - one for running new DB migrations, and one for completely resetting the DB to the seed values.
 
-# Future ideas
+## Future ideas
 
 * Add options for dry run
 * Add support for architectures other than amd64
