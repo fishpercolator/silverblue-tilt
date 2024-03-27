@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>RailsExample</title>
+    <title>Rails example: Books</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -11,6 +11,12 @@
   </head>
 
   <body>
+    <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <%= link_to 'Rails example: Books', root_path, class: 'navbar-item has-text-weight-bold' %>
+      </div>
+    </nav>
+    <p style="color: green"><%= notice %></p>
     <%= yield %>
   </body>
 </html>

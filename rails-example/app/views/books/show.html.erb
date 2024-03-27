@@ -1,10 +1,28 @@
-<p style="color: green"><%= notice %></p>
+<section class="section">
+  <div class="container">
+    <table class="table">
+      <tbody>
+        <tr>
+          <th class="is-primary">Title</th>
+          <td><%= @book.title %></td>
+        </tr>
+        <tr>
+          <th class="is-primary">Author</th>
+          <td><%= @book.author %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
-<%= render @book %>
-
-<div>
-  <%= link_to "Edit this book", edit_book_path(@book) %> |
-  <%= link_to "Back to books", books_path %>
-
-  <%= button_to "Destroy this book", @book, method: :delete %>
-</div>
+<section class="section">
+  <div class="container">
+    <div class="level">
+      <div class="level-left">
+        <%= link_to "Edit this book", edit_book_path(@book), class: 'level-item button is-link' %>
+        <%= link_to "Back to books", books_path, class: 'level-item button is-link' %>
+        <%= button_to "Destroy this book", @book, method: :delete, class: 'level-item button is-danger' %>
+      </div>
+    </div>
+  </div>
+</section>

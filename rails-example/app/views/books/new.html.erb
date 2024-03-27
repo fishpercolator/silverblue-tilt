@@ -1,9 +1,14 @@
-<h1>New book</h1>
-
-<%= render "form", book: @book %>
-
-<br>
-
-<div>
-  <%= link_to "Back to books", books_path %>
-</div>
+<section class="section">
+  <div class="container">
+    <h2 class="title">New book</h2>
+  </div>
+<section class="section">
+  <div class="container">
+    <%= render "form", book: @book %>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <%= link_to "Back to books", books_path, class: 'button is-link' %>
+  </div>
+</section>

@@ -1,12 +1,4 @@
-<div id="<%= dom_id book %>">
-  <p>
-    <strong>Title:</strong>
-    <%= book.title %>
-  </p>
-
-  <p>
-    <strong>Author:</strong>
-    <%= book.author %>
-  </p>
-
-</div>
+<tr id="<%= dom_id book %>">
+  <td><%= link_to book.title, book %></td>
+  <td><%= book.author %></td>
+</tr>
