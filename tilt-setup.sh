@@ -117,6 +117,7 @@ start_cluster () {
   *)
     echo "Creating Kubernetes cluster..."
     # Add this patch config until https://github.com/kubernetes-sigs/kind/issues/2875 is resolved
+    # And another patch to enable local storage https://github.com/kubernetes-sigs/kind/pull/3360
     cat <<EOF | kind create cluster --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -124,6 +125,10 @@ containerdConfigPatches:
 - |-
   [plugins."io.containerd.grpc.v1.cri".registry]
     config_path = "/etc/containerd/certs.d"
+kubeadmConfigPatches:
+- |
+  kind: KubeletConfiguration
+  localStorageCapacityIsolation: true
 EOF
     ;;
   esac
