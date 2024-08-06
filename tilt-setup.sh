@@ -118,9 +118,15 @@ start_cluster () {
     echo "Creating Kubernetes cluster..."
     # Add this patch config until https://github.com/kubernetes-sigs/kind/issues/2875 is resolved
     # And another patch to enable local storage https://github.com/kubernetes-sigs/kind/pull/3360
+    # One more patch to expose /dev https://github.com/kubernetes-sigs/kind/issues/3389#issuecomment-1784159342
     cat <<EOF | kind create cluster --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraMounts:
+  - hostPath: /dev
+    containerPath: /dev
 containerdConfigPatches:
 - |-
   [plugins."io.containerd.grpc.v1.cri".registry]
